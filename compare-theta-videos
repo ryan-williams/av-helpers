@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+
+# Compare MP4 files (representing videos taken with a Ricoh Theta S) in two directories, and print files in <from> that don't have a corresponding "_er.MP4" file in
+# <to>.
+#
+# Usage:
+#
+#   $ compare-theta-videos [from [to]]
+
+from="${1:-"$HOME/videos/orig"}"
+to="${2:-$HOME/videos/injected}"
+
+echo "Comparing MP4s in $from to those in $to:"
+echo ''
+
+echo "MP4s missing from $to:"
+comm -23 \
+	<(find "$from" -name '*.MP4' | perl -pe "s/^$(echo "$from" | escape-regex)\///" | grep -v "_er\.MP4" | sort) \
+	<(find "$to" -name '*_er.MP4' | perl -pe "s/^$(echo "$to" | escape-regex)\///;s/_er\.MP4\$/.MP4/" | sort) | \
+	perl -pe 's/^/\t/'
+echo ""
+
+echo "Converted MP4s that need moving from $from to $to:"
+find "$from" -name '*_er.MP4' | perl -pe 's/^/\t/'
+echo ''
+
+if prompt "Move them now"; then
+	rsync-paths --remove-source-files '2*/*_er.MP4' "$from/" "$to/"
+fi

@@ -2,4 +2,6 @@
 alias dims=image-dimensions
 alias dim=image-dimensions
 
-export ih="$s/image-helpers"
+export ih="$(dirname "${BASH_SOURCE[0]}")/image-helpers"
+
+alias ctv=compare-theta-videos
