@@ -1,26 +1,26 @@
 #!/usr/bin/env bash
 
 if [ $# -eq 2 ]; then
-	top="$1"
-	bottom="$2"
+  top="$1"
+  bottom="$2"
 elif [ $# -eq 1 ]; then
-	top="_"
-	bottom="$1"
+  top="_"
+  bottom="$1"
 else
-	cat >&2 <<EOF
+  cat >&2 <<EOF
 Usage:
-	$0 <bottom text>
-	$0 <top text> <bottom text>
+  $0 <bottom text>
+  $0 <top text> <bottom text>
 EOF
-	exit 1
+  exit 1
 fi
 
 if [ -z "$MEMES_DIR" ]; then
-	if [ -d "$HOME/Downloads" ]; then
-		MEMES_DIR="$HOME/Downloads"
-	else
-		MEMES_DIR="$PWD"
-	fi
+  if [ -d "$HOME/Downloads" ]; then
+    MEMES_DIR="$HOME/Downloads"
+  else
+    MEMES_DIR="$PWD"
+  fi
 fi
 
 wget -P "$MEMES_DIR" "https://memegen.link/aag/$top/$bottom.jpg"

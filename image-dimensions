@@ -1,3 +1,10 @@
 #!/usr/bin/env bash
 
-convert "$@" -print '%w %h\n' /dev/null
+if [ $# -eq 1 ]; then
+  convert "$1" +profile "*" -print '%w %h\n' /dev/null
+else
+  for arg in "$@"; do
+    echo -n "$arg: "
+    convert "$arg" +profile "*" -print '%w %h\n' /dev/null 2>/dev/null
+  done
+fi

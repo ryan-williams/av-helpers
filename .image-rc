@@ -5,3 +5,6 @@ alias dim=image-dimensions
 export ih="$(dirname "${BASH_SOURCE[0]}")/image-helpers"
 
 alias ctv=compare-theta-videos
+
+alias to_png=convert-to-png
+alias 2png=convert-to-png

@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+in="$1"; shift
+if [ $# -gt 0 ]; then
+  out="$1"; shift
+else
+  base="${in%.*}"
+  out="${base}.png"
+fi
+
+convert "$in" "$@" "$out"
