@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+
+set -e
+
+if [ $# -eq 0 ]; then
+  "$0" .
+else
+  for arg in "$@"; do
+    if [ -d "$arg" ]; then
+      find "$arg" -name '*.tiff' | parallel -k -j+0 --env PATH 'echo {}; convert {} {.}.png'
+    else
+      name="${arg%.tiff}"
+      if [ "$name" == "$arg" ]; then
+        echo "Not a tiff; skipping $arg" >&2
+      else
+        echo "$arg"
+        convert "$arg" "$name.png"
+      fi
+    fi
+  done
+fi

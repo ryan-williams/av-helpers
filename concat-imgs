@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+#
+# Pad input images to be the same width as the widest one, then concatenate them vertically.
+#
+# Usage: concat-imgs [-o <output path=all.png>] [-b <backgound padding color=white>] [image...]
+
+declare -a ARGS
+
+bg_color=white
+out_path=all.png
+
+while [ $# -gt 0 ]
+do
+    unset OPTIND
+    unset OPTARG
+    while getopts ":o:b:" opt
+    do
+      case "$opt" in
+        b) bg_color="$OPTARG";;
+        o) out_path="$OPTARG";;
+        *) ;;
+      esac
+    done
+    shift $((OPTIND-1))
+    ARGS+=("$1")
+    shift
+done
+
+max_width="$(ls "${ARGS[@]}" | parallel -k -j+0 --env PATH image-dimensions | first | sort -n | tail -n1)"
+echo "Max width: $max_width"
+
+pad() {
+  in="$1"
+  out="$(mktemp).${in##*.}"
+  convert "$in" -size "${max_width}x" -background "$bg_color" -gravity center -extent "${max_width}x" "$out"
+  echo "$out"
+}
+
+paths=()
+for arg in "${ARGS[@]}"; do
+  path="$(pad "$arg")"
+  echo "Made tmp padded image for $arg: $path"
+  paths+=("$path")
+done
+
+convert -append "${paths[@]}" "$out_path"
+
+for path in "${paths[@]}"; do
+  rm -f "$path"
+done

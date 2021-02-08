@@ -8,3 +8,5 @@ alias ctv=compare-theta-videos
 
 alias to_png=convert-to-png
 alias 2png=convert-to-png
+
+alias t2p=tiffs-to-pngs
