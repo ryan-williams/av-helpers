@@ -7,14 +7,19 @@ if [ $# -eq 0 ]; then
 else
   for arg in "$@"; do
     if [ -d "$arg" ]; then
-      find "$arg" -name '*.tiff' | parallel -k -j+0 --env PATH 'echo {}; convert {} {.}.png'
+      find "$arg" -name '*.tiff' | parallel -k -j+0 --env PATH "$0"
     else
       name="${arg%.tiff}"
       if [ "$name" == "$arg" ]; then
         echo "Not a tiff; skipping $arg" >&2
       else
-        echo "$arg"
-        convert "$arg" "$name.png"
+        out="$name.png"
+        if [ -s "$out" ]; then
+          echo "Found $out; skipping"
+        else
+          echo "Converting: $arg → $out"
+          convert "$arg" "$out"
+        fi
       fi
     fi
   done
