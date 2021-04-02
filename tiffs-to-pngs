@@ -19,6 +19,7 @@ else
         else
           echo "Converting: $arg → $out"
           convert "$arg" "$out"
+          rm -f "$arg"
         fi
       fi
     fi
