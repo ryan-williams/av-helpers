@@ -15,11 +15,15 @@ else
       else
         out="$name.png"
         if [ -s "$out" ]; then
-          echo "Found $out; skipping"
+          echo "Found $out; skipping" >&2
         else
-          echo "Converting: $arg → $out"
+          echo "Converting: $arg → $out" >&2
           convert "$arg" "$out"
-          rm -f "$arg"
+          if [ -e "$out" ]; then
+            rm -f "$arg"
+          else
+            echo "Conversion failed? $out not found" >&2
+          fi
         fi
       fi
     fi
