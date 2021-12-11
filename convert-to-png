@@ -1,11 +1,37 @@
 #!/usr/bin/env bash
+alpha=
+ARGS=()
 
-in="$1"; shift
-if [ $# -gt 0 ]; then
-  out="$1"; shift
-else
+while (("$#")); do
+  case "$1" in
+  -a | --alpha)
+    alpha=1;
+    shift
+    ;;
+  *) # preserve positional arguments
+    ARGS+=("$1");
+    shift
+    ;;
+  esac
+done
+set -- "${ARGS[@]}"
+echo "$# args: $@"
+
+if [ $# -eq 1 ]; then
+  in="$1"; shift
   base="${in%.*}"
   out="${base}.png"
+elif [ $# -eq 2 ]; then
+  in="${ARGS[0]}"
+  out="${ARGS[1]}"
+else
+  echo "Usage: $0 [-a] <in> <out>"
 fi
 
-convert "$in" "$@" "$out"
+cmd=(convert "$in")
+if [ -z "$alpha" ]; then
+  cmd+=(-background white -alpha remove -alpha off)
+fi
+cmd+=("$out")
+echo "Running: ${cmd[*]}"
+"${cmd[@]}"
