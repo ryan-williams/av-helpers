@@ -25,3 +25,7 @@ def main(reduce, inpath, outpath):
     }
     level = levels[reduce]
     check_call([ 'gs', '-sDEVICE=pdfwrite', '-dCompatibilityLevel=1.4', f'-dPDFSETTINGS=/{level}', '-dNOPAUSE', '-dQUIET', '-dBATCH', f'-sOutputFile={outpath}', inpath, ])
+
+
+if __name__ == '__main__':
+    main()
