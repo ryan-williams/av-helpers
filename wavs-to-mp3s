@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+arg="${1:-.}"
+
+#find "$arg" -name '*.wav'
+find "$arg" -name '*.wav' | \
+parallel -j+0 --env PATH 'echo "{}"; mp3={.}.mp3; if [ -e "$mp3" ]; then echo "Found: $mp3"; else ffmpeg -i {} -ac 2 -b:a 192k -f mp3 "$mp3"; fi'

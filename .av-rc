@@ -1,0 +1,6 @@
+
+video_bitrate() {
+    ffprobe -v quiet -select_streams v:0 -show_entries stream=bit_rate -of default=noprint_wrappers=1:nokey=1 -i "$@"
+}
+export -f video_bitrate
+defn vbr video_bitrate

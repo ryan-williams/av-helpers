@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+
+usage() {
+  echo "Usage: $0 [speed=2|4|10] <input> [output]" >&2
+  exit 1
+}
+
+if [ $# -lt 2 -o $# -gt 3 ]; then
+  usage
+fi
+
+speedup="${1%x}"
+shift
+input="$1"
+shift
+if [ $# -gt 0 ]; then
+  output="$1"
+  shift
+else
+  base="${input%.*}"
+  extension="${input##*.}"
+  output="${base}-${speedup}x.${extension}"
+fi
+
+case "$speedup" in
+  2)
+    setpts=0.5
+    atempo="atempo=2.0"
+    ;;
+  2.5)
+    setpts=0.4
+    atempo="atempo=2.0,atempo=1.25"
+    ;;
+  4)
+    setpts=0.25
+    atempo="atempo=2.0,atempo=2.0"
+    ;;
+  10)
+    setpts=0.1
+    atempo="atempo=2.0,atempo=2.0,atempo=2.0,atempo=1.25"
+    ;;
+  20)
+    setpts=0.05
+    atempo="atempo=2.0,atempo=2.0,atempo=2.0,atempo=2.0,atempo=1.25"
+    ;;
+  50)
+    setpts=0.1
+    atempo="atempo=2.0,atempo=2.0,atempo=2.0,atempo=1.25"
+    ;;
+  *)
+    usage
+    ;;
+esac
+
+echo "$input $setpts $atempo $output"
+ffmpeg -i "$input" -filter_complex "[0:v]setpts=$setpts*PTS[v];[0:a]$atempo[a]" -map "[v]" -map "[a]" "$output"
