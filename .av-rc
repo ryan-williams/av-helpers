@@ -4,3 +4,5 @@ video_bitrate() {
 }
 export -f video_bitrate
 defn vbr video_bitrate
+
+defn qrc qr-code.py
