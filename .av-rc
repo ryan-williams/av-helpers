@@ -6,3 +6,8 @@ export -f video_bitrate
 defn vbr video_bitrate
 
 defn qrc qr-code.py
+
+defn dsi downsample-image.py
+
+defn vs video-stats.py
+defn vsh video-stats.py -h
