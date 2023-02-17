@@ -1,9 +1,14 @@
 #!/usr/bin/env python
-from sys import stderr
+import sys
 
 import click
 from humanize import naturalsize
 from utz import process, singleton
+
+
+def stderr(msg=''):
+    sys.stderr.write(msg)
+    sys.stderr.write('\n')
 
 
 @click.command()
