@@ -12,7 +12,18 @@ def run(*args):
     check_call(args)
 
 
+def normalize_color(color):
+    if len(color) in [3, 4]:
+        return ''.join( ch*2 for ch in color )
+    elif len(color) in [6, 8]:
+        return color
+    else:
+        raise ValueError(f'Unrecognized color: {color}')
+
+
 @click.command(context_settings=dict(ignore_unknown_options=True,))
+@click.option('-b', '--background')
+@click.option('-f', '--foreground')
 @click.option('-m', '--margin', default='1')
 @click.option('-o', '--outname')
 @click.option('-O', '--no-open', is_flag=True)
@@ -20,7 +31,7 @@ def run(*args):
 @click.option('-s', '--pixel-size', default='10')
 @click.option('-S', '--no-svg', is_flag=True)
 @click.argument('qrencode_args', nargs=-1, type=click.UNPROCESSED)
-def main(margin, outname, no_open, no_png, pixel_size, no_svg, qrencode_args):
+def main(background, foreground, margin, outname, no_open, no_png, pixel_size, no_svg, qrencode_args):
     do_open = not no_open
     do_png = not no_png
     do_svg = not no_svg
@@ -30,7 +41,14 @@ def main(margin, outname, no_open, no_png, pixel_size, no_svg, qrencode_args):
         outname = splitext(basename(url))[0]
 
     qrencode_args = qrencode_args or []
-    base_cmd = [ 'qrencode', '-s', pixel_size, '-m', margin, ] + qrencode_args
+    base_cmd = [ 'qrencode', '-s', pixel_size, '-m', margin, ]
+    if foreground:
+        foreground = normalize_color(foreground)
+        base_cmd += [ f'--foreground={foreground}' ]
+    if background:
+        background = normalize_color(background)
+        base_cmd += [ f'--background={background}' ]
+    base_cmd += qrencode_args
 
     outpaths = []
 

@@ -1,6 +1,7 @@
 
 alias dims=image-dimensions
 alias dim=image-dimensions
+alias imd=image-dimensions
 
 export ih="$(dirname "${BASH_SOURCE[0]}")/image-helpers"
 

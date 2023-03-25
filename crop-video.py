@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
 from argparse import ArgumentParser
-from functools import cached_property
 from subprocess import check_call, check_output, CalledProcessError
+from utz import cached_property
 
 parser = ArgumentParser()
 parser.add_argument('input')
@@ -86,12 +86,13 @@ class Range:
         self.end = end
         self.size = size
 
+    @cached_property
     def max(self):
-        if not hasattr(self, '_max'): self._max = dims()[self.key]
-        return self._max
+        return dims()[self.key]
 
     @property
-    def dims(self): return ( self.start, self.size )
+    def dims(self):
+        return self.start, self.size
 
     def __str__(self):
         if not self.s: return ''
