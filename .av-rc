@@ -11,3 +11,9 @@ defn dsi downsample-image.py
 
 defn vs video-stats.py
 defn vsh video-stats.py -h
+
+make_gif() {
+    convert -delay "$1" -dispose previous "${@: 2}"
+}
+export -f make_gif
+defn mkg make_gif
