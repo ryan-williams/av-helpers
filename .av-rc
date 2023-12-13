@@ -17,3 +17,36 @@ make_gif() {
 }
 export -f make_gif
 defn mkg make_gif
+
+time_tags() {
+    # https://exiftool.org/forum/index.php?PHPSESSID=cc19259a7bbac1f32f4e3d280d842fa7&msg=74731
+    exiftool -time:all -G1 -a -s "$@"
+}
+
+# Adjust MP4 EXIF timestamps (local time, but timezone "naive") to be UTC.
+# EXIF apparently doesn't support timezones, so setting UTC times makes them import correctly into Street View Studio.
+#
+# ```bash
+# update_timestamps.py $f > iso-exifs.txt
+# time exiftool -overwrite_original -P -json=iso-exifs.txt $f
+# ```
+#
+# or in one shot:
+#
+# ```bash
+# update_timestamps.py -ii $f
+# ```
+#
+# This will do something similar, using ffmpeg, if you know the time you want to set.
+# It is similar to the `exiftool` command above, but isn't integrated with update_timestamps.py (which converts
+# timezones). It also writes out a copy, that then has to be moved to overwrite the original file.
+set_creation_time() {
+    if [ $# -ne 3 ]; then
+        echo "Usage: set_creation_time <time> <in> <out>"
+        return 1
+    fi
+    time="$1"; shift
+    in="$1"; shift
+    out="$1"; shift
+    ffmpeg -i "$in" -c copy -map 0 -metadata creation_time="$time" "$out"
+}

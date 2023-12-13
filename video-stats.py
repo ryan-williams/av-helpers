@@ -1,4 +1,7 @@
 #!/usr/bin/env python
+import re
+
+import json
 import sys
 
 import click
@@ -12,9 +15,11 @@ def stderr(msg=''):
 
 
 @click.command()
-@click.option('-h', '--human-readable', is_flag=True)
+@click.option('-H', '--no-human-readable', is_flag=True)
+@click.option('-j', '--json', 'output_json', is_flag=True)
 @click.argument('filename')
-def main(human_readable, filename):
+def main(no_human_readable, output_json, filename):
+    human_readable = not no_human_readable
     cmd = [
         'ffprobe',
         '-v', 'quiet',
@@ -33,11 +38,22 @@ def main(human_readable, filename):
     duration = format['duration']
     bit_rate = format['bit_rate']
     if human_readable:
-        bit_rate = naturalsize(bit_rate)
-        duration = f'{duration}s'
+        bit_rate = re.sub('B$', 'bps', naturalsize(bit_rate))
     else:
-        bit_rate = f'{bit_rate}b'
-    print(f'{filename}: {width}x{height}, duration: {duration}, {bit_rate}ps')
+        bit_rate = f'{bit_rate}bps'
+
+    obj = {
+        'width': width,
+        'height': height,
+        'duration': duration,
+        'bit_rate': bit_rate,
+    }
+    if output_json:
+        print(json.dumps(obj, indent=2))
+    else:
+        for k, v in obj.items():
+            print(f'{k}: {v}')
+        # print(f'{filename}: {width}x{height}, duration: {duration}, {bit_rate}ps')
 
 
 if __name__ == '__main__':
