@@ -81,7 +81,7 @@ def main(n_jobs, dry_run, out_dir, number_from, top_left_size, final_size, input
 
         process.run('convert', '-crop', dimensions_str, path, out_path, dry_run=dry_run)
 
-    if n_jobs == 1:
+    if n_jobs == 1 or len(inputs) == 1:
         for idx, path in enumerate(inputs):
             crop(idx, path)
     else:
