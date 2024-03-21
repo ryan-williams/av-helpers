@@ -12,18 +12,24 @@ defn dsi downsample-image.py
 defn vs video-stats.py
 defn vsh video-stats.py -h
 
-img_50p() {
-    if [ $# -eq 1 ]; then
-        convert "$1" -resize '50%' "${1%.*}_50p.${1##*.}"
-    elif [ $# -eq 2 ]; then
-        convert "$1" -resize '50%' "$2"
-    else
-        echo "Usage: img_50p <in> [<out>]" >&@
+img_pct() {
+    if [ $# -lt 2 ] || [ $# -gt 3 ]; then
+        echo "Usage: img_pct <pct> <in> [<out>]" >&@
         return 1
     fi
+    pct="$1"; shift
+    in="$1"; shift
+    if [ $# -eq 0 ]; then
+        out="${in%.*}_${pct}p.${in##*.}"
+    else
+        out="$1"; shift
+    fi
+    convert "$in" -resize "${pct}%" "$out"
 }
-export -f img_50p
-defn i50 img_50p
+export -f img_pct
+defn i30 img_pct 30
+defn i40 img_pct 40
+defn i50 img_pct 50
 
 make_gif() {
     convert -delay "$1" -dispose previous "${@: 2}"
