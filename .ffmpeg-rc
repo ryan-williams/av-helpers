@@ -6,3 +6,19 @@ video_info() {
 export -f video_info
 defn vif video_info
 defn fmi ffmpeg -i
+
+# https://superuser.com/a/1381709
+count_video_streams() {
+    if [ $# -eq 0 ] || [ $# -gt 2 ]; then
+        echo "Usage: count_streams <input> [stream_type]" >&2
+        return 1
+    fi
+    input="$1"; shift
+    if [ $# -eq 0 ]; then
+        ffprobe -v error -show_entries stream=codec_type -of default=nw=1:nk=1 "$input" | uniq -c
+    else
+        ffprobe -v error -select_streams a -show_entries stream=index -of csv=p=0 "$input" | wc -w
+    fi
+}
+export -f count_video_streams
+defn cvs count_video_streams
