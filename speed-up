@@ -22,6 +22,8 @@ else
   output="${base}-${speedup}x.${extension}"
 fi
 
+num_audio_streams="$(ffprobe -v error -select_streams a -show_entries stream=index -of csv=p=0 "$input" | wc -w)"
+
 case "$speedup" in
   2)
     setpts=0.5
@@ -53,4 +55,11 @@ case "$speedup" in
 esac
 
 echo "$input $setpts $atempo $output"
-ffmpeg -i "$input" -filter_complex "[0:v]setpts=$setpts*PTS[v];[0:a]$atempo[a]" -map "[v]" -map "[a]" "$output"
+
+filter="[0:v]setpts=$setpts*PTS[v]"
+map_args=(-map "[v]")
+if [ "$num_audio_streams" -gt 0 ]; then
+  filter+="[0:a]${atempo}[a]"
+  map_args+=(-map "[a]")
+fi
+ffmpeg -i "$input" -filter_complex "$filter" "${map_args[@]}" "$output"
