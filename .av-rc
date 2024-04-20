@@ -23,6 +23,13 @@ img_pct() {
         out="${in%.*}_${pct}p.${in##*.}"
     else
         out="$1"; shift
+        if [ "${out%/}" != "$out" ]; then
+            out="${out%/}"
+            mkdir -p "$out"
+        fi
+        if [ -d "$out" ]; then
+            out="$out/$(basename "$in")"
+        fi
     fi
     convert "$in" -resize "${pct}%" "$out"
 }
