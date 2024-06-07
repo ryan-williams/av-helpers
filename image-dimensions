@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
 
 if [ $# -eq 1 ]; then
-  convert "$1" +profile "*" -print '%w %h\n' /dev/null
+  magick "$1" +profile "*" -print '%w %h\n' /dev/null
 elif [ $# -eq 0 ]; then
   cat | xargs "$0"
 elif which parallel &>/dev/null; then
     for arg in "$@"; do echo "$arg"; done | \
-    parallel -k -j+0 --env PATH 'echo -n "{}: " && convert {} +profile "*" -print "%w %h\n" /dev/null'
+    parallel -k -j+0 --env PATH 'echo -n "{}: " && magick {} +profile "*" -print "%w %h\n" /dev/null'
 else
   for arg in "$@"; do
     echo -n "$arg: "
-    convert "$arg" +profile "*" -print '%w %h\n' /dev/null 2>/dev/null
+    magick "$arg" +profile "*" -print '%w %h\n' /dev/null 2>/dev/null
   done
 fi

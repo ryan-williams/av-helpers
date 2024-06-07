@@ -28,7 +28,7 @@ else
   echo "Usage: $0 [-a] <in> <out>"
 fi
 
-cmd=(convert "$in")
+cmd=(magick "$in")
 if [ -z "$alpha" ]; then
   cmd+=(-background white -alpha remove -alpha off)
 fi

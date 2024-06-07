@@ -31,7 +31,7 @@ img_pct() {
             out="$out/$(basename "$in")"
         fi
     fi
-    convert "$in" -resize "${pct}%" "$out"
+    magick "$in" -resize "${pct}%" "$out"
 }
 export -f img_pct
 defn i30 img_pct 30
@@ -39,7 +39,7 @@ defn i40 img_pct 40
 defn i50 img_pct 50
 
 make_gif() {
-    convert -delay "$1" -dispose previous "${@: 2}"
+    magick -delay "$1" -dispose previous "${@: 2}"
 }
 export -f make_gif
 defn mkg make_gif

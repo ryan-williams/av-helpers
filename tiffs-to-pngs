@@ -18,7 +18,7 @@ else
           echo "Found $out; skipping" >&2
         else
           echo "Converting: $arg → $out" >&2
-          convert "$arg" "$out"
+          magick "$arg" "$out"
           if [ -e "$out" ]; then
             rm -f "$arg"
           else
