@@ -14,17 +14,37 @@ import click
 
 
 @click.command()
-@click.option('-r', '--reduce', count=True, help='1x: "prepress" (300 dpi), 2x: "ebook" (150 dpi), 3x: "screen" (72 dpi)"')
+@click.option('-c', '--compatibility-level', default='1.5', help='Compatibility level')
+@click.option('-d', '--image-downsample-type', default='Bicubic', help='Image downsample type')
+@click.option('-i', '--image-resolution', default=150, type=int, help='Image resolution in dpi')
+@click.option('-r', '--reduce', count=True, help='0x: "printer", 1x: "prepress" (300 dpi), 2x: "ebook" (150 dpi), 3x: "screen" (72 dpi)"')
 @click.argument('inpath')
 @click.argument('outpath')
-def main(reduce, inpath, outpath):
+def main(compatibility_level, image_downsample_type, image_resolution, outpath, reduce, inpath):
     levels = {
+        0: 'printer',
         1: 'prepress',
         2: 'ebook',
         3: 'screen',
     }
     level = levels[reduce]
-    check_call([ 'gs', '-sDEVICE=pdfwrite', '-dCompatibilityLevel=1.4', f'-dPDFSETTINGS=/{level}', '-dNOPAUSE', '-dQUIET', '-dBATCH', f'-sOutputFile={outpath}', inpath, ])
+    check_call([
+        'gs',
+        '-sDEVICE=pdfwrite',
+        f'-dCompatibilityLevel={compatibility_level}',
+        f'-dPDFSETTINGS=/{level}',
+        f'-dColorImageDownsampleType=/{image_downsample_type}',
+        f'-dColorImageResolution={image_resolution}',
+        f'-dGrayImageDownsampleType=/{image_downsample_type}',
+        f'-dGrayImageResolution={image_resolution}',
+        f'-dMonoImageDownsampleType=/{image_downsample_type}',
+        f'-dMonoImageResolution={image_resolution}',
+        f'-dNOPAUSE',
+        f'-dQUIET',
+        f'-dBATCH',
+        f'-sOutputFile={outpath}',
+        inpath,
+    ])
 
 
 if __name__ == '__main__':
