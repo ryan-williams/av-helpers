@@ -14,7 +14,7 @@ defn vsh video-stats.py -h
 
 img_pct() {
     if [ $# -lt 2 ] || [ $# -gt 3 ]; then
-        echo "Usage: img_pct <pct> <in> [<out>]" >&@
+        echo "Usage: ${FUNCNAME[0]} <pct> <in> [<out>]" >&@
         return 1
     fi
     pct="$1"; shift
@@ -68,7 +68,7 @@ time_tags() {
 # timezones). It also writes out a copy, that then has to be moved to overwrite the original file.
 set_creation_time() {
     if [ $# -ne 3 ]; then
-        echo "Usage: set_creation_time <time> <in> <out>"
+        echo "Usage: ${FUNCNAME[0]} <time> <in> <out>"
         return 1
     fi
     time="$1"; shift
