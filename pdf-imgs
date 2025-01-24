@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+
+background=white
+density=300
+quality=100
+while getopts "b:d:q:" opt; do
+  case $opt in
+    b) background="$OPTARG" ;;
+    d) density="$OPTARG" ;;
+    q) quality="$OPTARG" ;;
+    *) echo "Usage: $0 [-b <background=white>] [-d <density=300>] [-q <quality=100>] <pdf>" >&2; exit 1 ;;
+  esac
+done
+shift $((OPTIND-1))
+
+if [ $# -eq 0 ] || [ $# -gt 2 ]; then
+  echo "Usage: $0 [-d <density=300>] [-q <quality=100>] <pdf> [out_pattern]" >&2
+  exit 1
+fi
+
+pdf="$1"; shift
+
+if [ $# -gt 0 ]; then
+  out_pattern="$1"
+else
+  stem="${pdf%.pdf}"
+  mkdir -p "$stem"
+  out_pattern="$stem/%03d.png"
+fi
+
+magick -density "$density" "$pdf" -background "$background" -alpha remove -alpha off -quality "$quality" "$out_pattern"
