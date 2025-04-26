@@ -1,15 +1,21 @@
 #!/usr/bin/env python
+from __future__ import annotations
 
+from functools import partial
 from os.path import basename, splitext
 import shlex
+from sys import stdout
 
 import click
-from subprocess import check_call
+from subprocess import check_call, check_output
+
+err = partial(print, file=stdout)
 
 
 def run(*args):
-    print(f"Running: {shlex.join(args)}")
-    check_call(args)
+    cmd = [ str(arg) for arg in args ]
+    err(f"Running: {shlex.join(cmd)}")
+    check_call(cmd)
 
 
 def normalize_color(color):
@@ -22,21 +28,46 @@ def normalize_color(color):
 
 
 @click.command(context_settings=dict(ignore_unknown_options=True,))
-@click.option('-b', '--background')
-@click.option('-f', '--foreground')
-@click.option('-m', '--margin', default='1')
-@click.option('-o', '--outname')
-@click.option('-O', '--no-open', is_flag=True)
-@click.option('-P', '--no-png', is_flag=True)
-@click.option('-s', '--pixel-size', default='10')
-@click.option('-S', '--no-svg', is_flag=True)
+@click.option('-b', '--background', help='Background color')
+@click.option('-d', '--decode', help='Decode the URL from an existing QR code')
+@click.option('-f', '--foreground', help='Foreground color')
+@click.option('-m', '--margin', default=1, help='Margin around QR code (in "QR"-pixels)')
+@click.option('-o', '--outname', help='Output path stem, e.g. "my-qr" will result in `my-qr.{png,svg}` being generated')
+@click.option('-O', '--no-open', is_flag=True, help='Skip attempting to invoke `open` on the resulting QR code')
+@click.option('-P', '--no-png', is_flag=True, help='Skip exporting a PNG')
+@click.option('-s', '--pixel-size', default=10, help='Pixels per QR code "pixel"')
+@click.option('-S', '--no-svg', is_flag=True, help='Skip exporting an SVG')
+@click.option('-u', '--to-upper', is_flag=True, help='Convert the URL to upper-case (can result in smaller output QR codes)')
 @click.argument('qrencode_args', nargs=-1, type=click.UNPROCESSED)
-def main(background, foreground, margin, outname, no_open, no_png, pixel_size, no_svg, qrencode_args):
+def main(
+    background: str,
+    decode: str | None,
+    foreground: str,
+    margin: int,
+    outname: str,
+    no_open: bool,
+    no_png: bool,
+    pixel_size: int,
+    no_svg: bool,
+    to_upper: bool,
+    qrencode_args: tuple[str, ...],
+):
+    """`qrencode` wrapper, generates PNG+SVG by default, `open`s result."""
     do_open = not no_open
     do_png = not no_png
     do_svg = not no_svg
 
-    [ *qrencode_args, url ] = qrencode_args
+    if decode:
+        [line] = list(filter(None, check_output(['zbarimg', decode]).decode().split('\n')))
+        _, url = line.split(':', 1)
+        err(f"Decoded {url=} from {decode}")
+    else:
+        [ *qrencode_args, url ] = qrencode_args
+
+    if to_upper:
+        url = url.upper()
+        err(f"Converted to upper-case: {url}")
+
     if outname is None:
         outname = splitext(basename(url))[0]
 
