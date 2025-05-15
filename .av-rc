@@ -76,3 +76,15 @@ set_creation_time() {
     out="$1"; shift
     ffmpeg -i "$in" -c copy -map 0 -metadata creation_time="$time" "$out"
 }
+
+ocr() {
+  local name
+  if [ $# -eq 1 ]; then
+    name="${1%.*}.txt"
+    set -- "$1" "$name"
+  else
+    name="${@: -1}"
+  fi
+  tesseract "$@" && cat "$name.txt"
+}
+export -f ocr
