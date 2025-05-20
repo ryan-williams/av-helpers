@@ -1,64 +1,72 @@
 #!/usr/bin/env bash
 
 usage() {
-  echo "Usage: $0 [speed=2|2.5|4|5|10|20|50] <input> [output]" >&2
+  echo "Usage: $0 [speed=2|2.5|4|5|10|20|50] [-n] [-r <framerate=30>] [...ffmpeg args>] <input> [output]" >&2
   exit 1
 }
 
-if [ $# -lt 2 ] || [ $# -gt 3 ]; then
+if [ $# -eq 0 ]; then
+  usage
+fi
+speedup="${1%x}"
+shift
+
+export OPTION_ERROR=0
+framerate=30
+dry_run=
+while getopts 'nr:' opt 2>/dev/null; do
+  case "$opt" in
+    n) dry_run=1 ;;
+    r) framerate="$OPTARG" ;;
+    \?)
+      # Remaining args sent to ffmpeg
+      OPTIND=$((OPTIND - 1))
+      break
+      ;;
+  esac
+done
+#echo "OPTIND: $OPTIND, $#, $*"
+shift $((OPTIND - 1))
+#echo "$# args: $*"
+
+if [ $# -eq 0 ]; then
   usage
 fi
 
-speedup="${1%x}"
-shift
-input="$1"
-shift
+last1="${*: -1}"
+set -- "${@: 1: (($#-1))}"
+output=
 if [ $# -gt 0 ]; then
-  output="$1"
-  shift
-else
+  last2="${*: -1}"
+  if [[ $last2 = *.mov ]] || [[ $last2 = *.mp4 ]]; then
+    input="$last2"
+    output="$last1"
+    echo "Parsed input $input, output $output" >&2
+    set -- "${@: 1: (($#-1))}"
+  fi
+fi
+if [ -z "$output" ]; then
+  input="$last1"
   base="${input%.*}"
   extension="${input##*.}"
   output="${base}-${speedup}x.${extension}"
+  echo "Input $input, output $output" >&2
 fi
 
 num_audio_streams="$(ffprobe -v error -select_streams a -show_entries stream=index -of csv=p=0 "$input" | wc -w)"
 
 case "$speedup" in
-  2)
-    setpts=0.5
-    atempo="atempo=2.0"
-    ;;
-  2.5)
-    setpts=0.4
-    atempo="atempo=2.0,atempo=1.25"
-    ;;
-  4)
-    setpts=0.25
-    atempo="atempo=2.0,atempo=2.0"
-    ;;
-  5)
-    setpts=0.2
-    atempo="atempo=2.0,atempo=2.0,atempo=1.25"
-    ;;
-  10)
-    setpts=0.1
-    atempo="atempo=2.0,atempo=2.0,atempo=2.0,atempo=1.25"
-    ;;
-  20)
-    setpts=0.05
-    atempo="atempo=2.0,atempo=2.0,atempo=2.0,atempo=2.0,atempo=1.25"
-    ;;
-  50)
-    setpts=0.1
-    atempo="atempo=2.0,atempo=2.0,atempo=2.0,atempo=1.25"
-    ;;
-  *)
-    usage
-    ;;
+  2)   setpts=0.5  ; atempo="atempo=2.0" ;;
+  2.5) setpts=0.4  ; atempo="atempo=2.0,atempo=1.25" ;;
+  4)   setpts=0.25 ; atempo="atempo=2.0,atempo=2.0" ;;
+  5)   setpts=0.2  ; atempo="atempo=2.0,atempo=2.0,atempo=1.25" ;;
+  10)  setpts=0.1  ; atempo="atempo=2.0,atempo=2.0,atempo=2.0,atempo=1.25" ;;
+  20)  setpts=0.05 ; atempo="atempo=2.0,atempo=2.0,atempo=2.0,atempo=2.0,atempo=1.25" ;;
+  50)  setpts=0.1  ; atempo="atempo=2.0,atempo=2.0,atempo=2.0,atempo=1.25" ;;
+  *)   usage ;;
 esac
 
-echo "$input $setpts $atempo $output"
+# echo "$input $setpts $atempo $output"
 
 filter="[0:v]setpts=$setpts*PTS[v]"
 map_args=(-map "[v]")
@@ -66,4 +74,11 @@ if [ "$num_audio_streams" -gt 0 ]; then
   filter+="[0:a]${atempo}[a]"
   map_args+=(-map "[a]")
 fi
-ffmpeg -i "$input" -filter_complex "$filter" "${map_args[@]}" "$output"
+
+cmd=(ffmpeg -i "$input" -filter_complex "$filter" "${map_args[@]}" -r "$framerate" "$@" "$output")
+if [ -n "$dry_run" ]; then
+  echo "Would run: ${cmd[*]}" >&2
+else
+  echo "Running: ${cmd[*]}" >&2
+  "${cmd[@]}"
+fi
