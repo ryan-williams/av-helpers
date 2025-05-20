@@ -10,7 +10,7 @@ defn qrc qr-code.py
 defn dsi downsample-image.py
 
 defn vs video-stats.py
-defn vsh video-stats.py -h
+defn vsb video-stats.py -H
 
 img_pct() {
     if [ $# -lt 2 ] || [ $# -gt 3 ]; then
