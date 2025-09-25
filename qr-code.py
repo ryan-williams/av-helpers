@@ -1,13 +1,18 @@
-#!/usr/bin/env python
+#!/usr/bin/env -S uv run --script
+# /// script
+# dependencies = [
+#     "click",
+# ]
+# ///
 from __future__ import annotations
 
 from functools import partial
 from os.path import basename, splitext
 import shlex
+from subprocess import check_call, check_output
 from sys import stdout
 
 import click
-from subprocess import check_call, check_output
 
 err = partial(print, file=stdout)
 
