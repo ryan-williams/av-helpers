@@ -1,4 +1,7 @@
-#!/usr/bin/env python
+#!/usr/bin/env -S uv run --script
+# /// script
+# dependencies = ["click", "humanize", "utz"]
+# ///
 import re
 
 import json

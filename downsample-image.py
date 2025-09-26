@@ -1,4 +1,7 @@
-#!/usr/bin/env python
+#!/usr/bin/env -S uv run --script
+# /// script
+# dependencies = ["click"]
+# ///
 from os import makedirs
 from os.path import dirname
 import shlex

@@ -1,4 +1,7 @@
-#!/usr/bin/env python
+#!/usr/bin/env -S uv run --script
+# /// script
+# dependencies = ["numpy", "scikit-image"]
+# ///
 
 import argparse
 from os.path import exists, splitext

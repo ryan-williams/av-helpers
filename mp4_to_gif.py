@@ -1,4 +1,7 @@
-#!/usr/bin/env python
+#!/usr/bin/env -S uv run --script
+# /// script
+# dependencies = []
+# ///
 # Convert a portion of an MP4 to GIF, cf. https://superuser.com/a/556031
 
 from argparse import ArgumentParser

@@ -1,4 +1,11 @@
-#!/usr/bin/env python
+#!/usr/bin/env -S uv run --script
+# /// script
+# dependencies = [
+#     "click",
+#     "joblib",
+#     "utz",
+# ]
+# ///
 import re
 from os import makedirs, cpu_count
 from os.path import splitext, basename, exists

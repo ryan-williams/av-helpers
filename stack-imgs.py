@@ -1,4 +1,7 @@
-#!/usr/bin/env python
+#!/usr/bin/env -S uv run --script
+# /// script
+# dependencies = ["click"]
+# ///
 import shlex
 from os import environ
 from subprocess import check_call, CalledProcessError

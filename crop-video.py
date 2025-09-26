@@ -1,4 +1,9 @@
-#!/usr/bin/env python3
+#!/usr/bin/env -S uv run --script
+# /// script
+# dependencies = [
+#     "utz",
+# ]
+# ///
 
 from argparse import ArgumentParser
 from subprocess import check_call, check_output, CalledProcessError
