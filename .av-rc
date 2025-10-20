@@ -13,8 +13,13 @@ defn vs video-stats.py
 defn vsb video-stats.py -H
 
 img_pct() {
+    local open_output=1
+    if [ "$1" = "-O" ]; then
+        open_output=0
+        shift
+    fi
     if [ $# -lt 2 ] || [ $# -gt 3 ]; then
-        echo "Usage: ${FUNCNAME[0]} <pct> <in> [<out>]" >&@
+        echo "Usage: ${FUNCNAME[0]} [-O] <pct> <in> [<out>]" >&2
         return 1
     fi
     pct="$1"; shift
@@ -30,8 +35,19 @@ img_pct() {
         if [ -d "$out" ]; then
             out="$out/$(basename "$in")"
         fi
+        # Adopt extension from input if output has no extension
+        if [[ "$out" != *.* ]]; then
+            local ext="${in##*.}"
+            out="${out}.${ext}"
+            echo "Adding extension: .${ext}" >&2
+        fi
     fi
     magick "$in" -resize "${pct}%" "$out"
+    local size=$(du -h "$out" | cut -f1)
+    echo "Output: $out ($size)" >&2
+    if [ $open_output -eq 1 ]; then
+        open "$out"
+    fi
 }
 export -f img_pct
 defn i30 img_pct 30
