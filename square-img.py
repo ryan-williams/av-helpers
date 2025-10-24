@@ -16,6 +16,11 @@ from subprocess import check_call
 @click.argument('in_path')
 @click.argument('out_path', required=False)
 def main(background, geometry, method, in_path, out_path):
+    if not out_path:
+        from pathlib import Path
+        p = Path(in_path)
+        out_path = f"{p.stem}_square{p.suffix}"
+
     if not geometry:
         if method == 'contain':
             geometry = '%[fx:max(w,h)]x%[fx:max(w,h)]-%[fx:max((h-w)/2,0)]-%[fx:max((w-h)/2,0)]'
