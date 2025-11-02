@@ -9,6 +9,10 @@ defn qrc qr-code.py
 
 defn dsi downsample-image.py
 
+defn pdf-pages pdf-pages.py
+defn slice-pdf slice-pdf.py
+defn reduce-pdf reduce-pdf-size.py
+
 defn vs video-stats.py
 defn vsb video-stats.py -H
 
